@@ -25,12 +25,34 @@ var userSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
+    role:{
+        type:String,
+        default:"user"
+    },
+    cart:{
+        type:Array,
+        default:[]
+    },
+    address:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Address"
+    }],
+    whishlist:[{ type:mongoose.Schema.Types.ObjectId,ref:"Product"}],
+    refreshToken:{
+        type:String
+    }
+},
+{
+    timestamps:true
 });
 
+/// convert the password in to bcrypt format
 userSchema.pre('save',async function(next){
     const salt = await bcrypt.genSaltSync(10);
     this.password = await bcrypt.hash(this.password,salt);
 })
+
+/// create a function in the userSchema that can be used to compare the passwords
 userSchema.methods.isPasswordMatched = async function(enteredPassword){
     return await bcrypt.compare(enteredPassword,this.password);
 }
